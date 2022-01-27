@@ -12,9 +12,22 @@ router = APIRouter()
 
 @router.get('/list', response_model=List[schema.Todo])
 async def get_todo_list(
+        page: int, rows: int,
         conn: Session = Depends(database.get_conn)
 ):
-    return conn.query(models.Todo).all()
+    debug(page, rows)
+    offset = 0
+    if page > 1:
+        offset = (page - 1) * rows
+    queryset = conn.query(models.Todo)
+    return queryset.offset(offset).limit(rows).all()
+
+
+# @router.get('/list/all', response_model=List[schema.Todo])
+# async def get_todo_list(
+#         conn: Session = Depends(database.get_conn)
+# ):
+#     return conn.query(models.Todo).all()
 
 
 @router.get('/find', response_model=schema.Todo)
